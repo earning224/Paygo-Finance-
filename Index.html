@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paygo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .animate-popup {
+            animation: slide-in 0.5s ease-out forwards;
+        }
+        @keyframes slide-in {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        .fade-out {
+            animation: fade-out 1s ease-out forwards;
+        }
+        @keyframes fade-out {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div id="app" class="max-w-md mx-auto bg-white min-h-screen shadow-lg">
+
+        <!-- Login Page -->
+        <div id="loginPage" class="page active p-6 md:p-8">
+            <div class="text-center pt-12">
+                <h1 class="text-3xl font-bold text-gray-800">Welcome back!!!</h1>
+                <p class="text-gray-600 mt-2">Login Now!!!</p>
+            </div>
+            <div class="mt-12">
+                <div class="space-y-6">
+                    <div>
+                        <input type="text" id="loginUsername" placeholder="Username" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <input type="password" id="loginPassword" placeholder="Password" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button onclick="handleLogin()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Login</button>
+                    <button onclick="navigateTo('registerPage')" class="w-full bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition duration-300">Register</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Register Page -->
+        <div id="registerPage" class="page p-6 md:p-8">
+            <div class="text-center pt-12">
+                <h1 class="text-3xl font-bold text-gray-800">Welcome to Paygo 👊</h1>
+                <p class="text-gray-600 mt-2">Create an account with us now!!!</p>
+            </div>
+            <div class="mt-12">
+                <div class="space-y-4">
+                    <input type="text" id="registerUsername" placeholder="Username" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" id="registerEmail" placeholder="Email/Phone Number" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" placeholder="Referral Code (optional)" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="registerPassword" placeholder="Password" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="password" id="registerConfirmPassword" placeholder="Confirm Password" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="handleRegister()" class="w-full bg-blue-600 text-white py-3 mt-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Register</button>
+                </div>
+                 <p class="text-center mt-4"><button onclick="navigateTo('loginPage')" class="text-blue-600 hover:underline">Already have an account? Login</button></p>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboardPage" class="page p-6 md:p-8 relative">
+            <!-- Welcome Popup -->
+            <div id="welcomePopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div class="bg-white rounded-lg p-6 text-center shadow-xl animate-popup">
+                    <h2 class="text-2xl font-bold text-gray-800">Welcome to Paygo! 💰🎉</h2>
+                    <p class="text-gray-600 mt-4">You will receive a bonus of NGN180,000 for free. Follow our guidelines and enjoy more bonus for free.</p>
+                    <button onclick="closeWelcomePopup()" class="mt-6 bg-blue-600 text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Thanks</button>
+                </div>
+            </div>
+            
+             <!-- Notification Popup Container -->
+            <div id="notificationContainer" class="absolute top-4 right-4 space-y-2 z-40"></div>
+
+            <div class="flex justify-between items-center">
+                <span id="dashboardUsername" class="font-semibold text-gray-700"></span>
+            </div>
+            <p class="text-gray-600 mt-2 text-xl">Welcome to Paygo</p>
+
+            <div class="mt-8 bg-blue-600 text-white rounded-lg p-6 text-center shadow-lg">
+                <p class="text-sm opacity-80">Your Balance</p>
+                <p id="dashboardBalance" class="text-4xl font-bold mt-2"></p>
+                <button onclick="navigateTo('withdrawPage')" class="mt-6 bg-white text-blue-600 px-8 py-2 rounded-full font-semibold hover:bg-blue-100 transition duration-300">Withdraw</button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-8 text-center">
+                <button onclick="navigateTo('grantCodeInfoPage')" class="bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition">
+                    <span class="text-2xl">🔑</span>
+                    <p class="font-semibold mt-2">Get Grant Code</p>
+                </button>
+                <button onclick="navigateTo('earnMorePage')" class="bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition">
+                    <span class="text-2xl">📈</span>
+                    <p class="font-semibold mt-2">Earn More</p>
+                </button>
+                <button onclick="navigateTo('profilePage')" class="bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition">
+                     <span class="text-2xl">👤</span>
+                    <p class="font-semibold mt-2">Profile</p>
+                </button>
+                <button onclick="navigateTo('companyProfilePage')" class="bg-gray-100 p-4 rounded-lg shadow hover:bg-gray-200 transition">
+                     <span class="text-2xl">🏢</span>
+                    <p class="font-semibold mt-2">More Details</p>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Withdraw Page -->
+        <div id="withdrawPage" class="page p-6 md:p-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Withdraw your money now!!!</h1>
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+
+            <div id="withdrawFormSection">
+                <div class="mt-8 space-y-4">
+                    <input id="withdrawAccountNumber" type="text" placeholder="Account Number" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input id="withdrawAccountName" type="text" placeholder="Account Name" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input id="withdrawBankName" type="text" placeholder="Bank Name" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input id="withdrawGrantCode" type="text" placeholder="Grant Code" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input id="withdrawAmount" type="number" placeholder="Amount" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="handleWithdraw()" class="w-full bg-blue-600 text-white py-3 mt-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Withdraw</button>
+                </div>
+            </div>
+
+            <div id="confirmWithdrawalSection" class="hidden mt-8">
+                <h2 class="text-2xl font-bold text-center">Confirm Withdrawal!!!</h2>
+                <div class="mt-6 bg-gray-50 p-6 rounded-lg space-y-3">
+                    <p class="text-gray-600">Amount: <span id="confirmAmount" class="font-bold text-gray-900"></span></p>
+                    <p class="text-gray-600">Account Name: <span id="confirmAccountName" class="font-bold text-gray-900"></span></p>
+                    <p class="text-gray-600">Account Number: <span id="confirmAccountNumber" class="font-bold text-gray-900"></span></p>
+                    <p class="text-gray-600">Bank Name: <span id="confirmBankName" class="font-bold text-gray-900"></span></p>
+                </div>
+                <button onclick="processWithdrawal()" class="w-full bg-green-600 text-white py-3 mt-6 rounded-lg font-semibold hover:bg-green-700 transition duration-300">Confirm</button>
+            </div>
+        </div>
+
+        <!-- Grant Code Info Page -->
+        <div id="grantCodeInfoPage" class="page p-6 md:p-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Importance of Grant Code</h1>
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-gray-600 text-lg">Grant code enables your withdrawal to be successful, get it now!!!</p>
+                <button onclick="navigateTo('getGrantCodePage')" class="mt-8 w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Get Grant Code</button>
+            </div>
+        </div>
+        
+        <!-- Get Grant Code Page -->
+        <div id="getGrantCodePage" class="page p-6 md:p-8">
+            <div class="flex justify-end">
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+            <div class="mt-8 text-center pt-16">
+                 <p class="text-gray-600 text-lg">Message us directly and get your grant code from us immediately ✅</p>
+                 <a href="https://wa.link/aukhe8" target="_blank" class="mt-8 w-full bg-green-500 text-white py-4 rounded-lg font-semibold hover:bg-green-600 transition duration-300 inline-block">
+                    Via Whatsapp
+                 </a>
+            </div>
+        </div>
+
+        <!-- Earn More Page -->
+        <div id="earnMorePage" class="page p-6 md:p-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Refer and Earn Massively 🎁🎊</h1>
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+            <div class="mt-8 text-center">
+                <p class="text-gray-700">Your referral code:</p>
+                <div class="mt-2 flex items-center justify-center bg-gray-100 p-3 rounded-lg">
+                    <span id="referralCode" class="font-bold text-lg text-gray-800"></span>
+                    <button onclick="copyReferralCode()" class="ml-4 text-gray-500 hover:text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                    </button>
+                </div>
+                 <p class="text-green-600 mt-2 h-4" id="copyFeedback"></p>
+                <p class="mt-6 text-gray-600">Refer someone with your referral code and get a bonus of NGN10,000. You must have withdrawn before you can get paid for referral.</p>
+                <div class="mt-6 text-lg">
+                    Number of referrals: <span id="referralCount" class="font-bold">0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profile Page -->
+        <div id="profilePage" class="page p-6 md:p-8">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-gray-800">Your Profile</h1>
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+            <div class="mt-8">
+                <div class="space-y-4">
+                    <input type="text" placeholder="Enter full name" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <input type="text" placeholder="NIN" class="w-full px-4 py-3 rounded-lg bg-gray-50 border-gray-300 border focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <button onclick="submitProfile()" class="w-full bg-blue-600 text-white py-3 mt-4 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">Submit</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Company Profile Page -->
+        <div id="companyProfilePage" class="page p-6 md:p-8">
+            <div class="flex justify-between items-center">
+                 <h1 class="text-2xl font-bold text-gray-800">About Paygo</h1>
+                <button onclick="goBack()" class="text-blue-600 font-semibold">Back</button>
+            </div>
+            <div class="mt-8 space-y-4 text-gray-700 leading-relaxed">
+                <p>Paygo is a website that was created to get everyone financially stable.</p>
+                <p>Make sure you withdraw from this website. You can also earn by referring your friends and family to Paygo.</p>
+                 <p>More bonus opportunities are coming soon!</p>
+            </div>
+        </div>
+        
+        <!-- Generic Message Popup -->
+        <div id="messagePopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 hidden">
+            <div class="bg-white rounded-lg p-6 text-center shadow-xl animate-popup">
+                <p id="messageText" class="text-gray-700 text-lg"></p>
+                <button onclick="closeMessagePopup()" class="mt-6 bg-blue-600 text-white px-8 py-2 rounded-lg font-semibold hover:bg-blue-700 transition duration-300">OK</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- STATE MANAGEMENT ---
+        const state = {
+            currentPage: 'loginPage',
+            pageHistory: [],
+            currentUser: null,
+            users: {} // Using an object to mimic a user database
+        };
+        
+        let notificationInterval;
+
+        // --- NAVIGATION ---
+        function navigateTo(pageId) {
+            const currentPageElement = document.getElementById(state.currentPage);
+            const nextPageElement = document.getElementById(pageId);
+
+            if (currentPageElement && nextPageElement) {
+                state.pageHistory.push(state.currentPage);
+                currentPageElement.classList.remove('active');
+                nextPageElement.classList.add('active');
+                state.currentPage = pageId;
+            }
+        }
+
+        function goBack() {
+            if (state.pageHistory.length > 0) {
+                const previousPageId = state.pageHistory.pop();
+                const currentPageElement = document.getElementById(state.currentPage);
+                const previousPageElement = document.getElementById(previousPageId);
+
+                if (currentPageElement && previousPageElement) {
+                    currentPageElement.classList.remove('active');
+                    previousPageElement.classList.add('active');
+                    state.currentPage = previousPageId;
+                }
+            }
+        }
+
+        // --- AUTHENTICATION ---
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            if (!username || !password) {
+                showMessage("Please enter username and password.");
+                return;
+            }
+
+            if (state.users[username] && state.users[username].password === password) {
+                state.currentUser = state.users[username];
+                setupDashboard();
+                navigateTo('dashboardPage');
+            } else {
+                showMessage("Invalid username or password.");
+            }
+        }
+
+        function handleRegister() {
+            const username = document.getElementById('registerUsername').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+            if (!username || !password || !confirmPassword) {
+                 showMessage("Please fill all required fields.");
+                 return;
+            }
+            if (password !== confirmPassword) {
+                 showMessage("Passwords do not match.");
+                 return;
+            }
+            if (state.users[username]) {
+                showMessage("Username already exists.");
+                return;
+            }
+
+            // Create new user
+            state.users[username] = {
+                username: username,
+                password: password,
+                balance: 180000.00,
+                referrals: 0
+            };
+            state.currentUser = state.users[username];
+            
+            setupDashboard();
+            navigateTo('dashboardPage');
+        }
+
+        // --- DASHBOARD ---
+        function setupDashboard() {
+            if (state.currentUser) {
+                document.getElementById('dashboardUsername').textContent = state.currentUser.username;
+                document.getElementById('dashboardBalance').textContent = `NGN ${state.currentUser.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                document.getElementById('referralCode').textContent = state.currentUser.username;
+                document.getElementById('referralCount').textContent = state.currentUser.referrals;
+                
+                // Start withdrawal notifications
+                if (notificationInterval) clearInterval(notificationInterval);
+                notificationInterval = setInterval(showWithdrawalNotification, 3000);
+            }
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').style.display = 'none';
+        }
+
+        function showWithdrawalNotification() {
+            const container = document.getElementById('notificationContainer');
+            if (state.currentPage !== 'dashboardPage' || !container) return;
+
+            const users = ["User4854", "User8555", "User9683", "User3656", "User7219"];
+            const amounts = [180000, 170000, 180000, 165000, 175000];
+            const randomUser = users[Math.floor(Math.random() * users.length)];
+            const randomAmount = amounts[Math.floor(Math.random() * amounts.length)];
+
+            const notification = document.createElement('div');
+            notification.className = 'bg-black bg-opacity-70 text-white text-sm p-3 rounded-lg shadow-lg fade-in';
+            notification.textContent = `${randomUser} just withdrew NGN${randomAmount.toLocaleString()}`;
+            
+            container.insertBefore(notification, container.firstChild);
+            
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => container.removeChild(notification), 1000);
+            }, 4000);
+        }
+
+        // --- WITHDRAWAL ---
+        let withdrawalDetails = {};
+        function handleWithdraw() {
+            const grantCode = document.getElementById('withdrawGrantCode').value;
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+            const accountName = document.getElementById('withdrawAccountName').value.trim();
+            const accountNumber = document.getElementById('withdrawAccountNumber').value.trim();
+            const bankName = document.getElementById('withdrawBankName').value.trim();
+
+            if (!amount || !accountName || !accountNumber || !bankName) {
+                showMessage("Please fill all withdrawal details.");
+                return;
+            }
+
+            if (grantCode !== '49149') {
+                showMessage("Invalid Grant Code. Please get a valid code.");
+                return;
+            }
+            if (amount <= 0 || amount > state.currentUser.balance) {
+                showMessage("Invalid withdrawal amount.");
+                return;
+            }
+            
+            withdrawalDetails = { amount, accountName, accountNumber, bankName };
+
+            document.getElementById('confirmAmount').textContent = `NGN ${amount.toLocaleString()}`;
+            document.getElementById('confirmAccountName').textContent = accountName;
+            document.getElementById('confirmAccountNumber').textContent = accountNumber;
+            document.getElementById('confirmBankName').textContent = bankName;
+
+            document.getElementById('withdrawFormSection').classList.add('hidden');
+            document.getElementById('confirmWithdrawalSection').classList.remove('hidden');
+        }
+        
+        function processWithdrawal() {
+             state.currentUser.balance -= withdrawalDetails.amount;
+             setupDashboard();
+             showMessage("Congratulations! Your withdrawal has been sent to your account successfully.");
+             
+             // Reset form and go back
+             document.getElementById('withdrawFormSection').classList.remove('hidden');
+             document.getElementById('confirmWithdrawalSection').classList.add('hidden');
+             document.getElementById('withdrawAccountNumber').value = '';
+             document.getElementById('withdrawAccountName').value = '';
+             document.getElementById('withdrawBankName').value = '';
+             document.getElementById('withdrawGrantCode').value = '';
+             document.getElementById('withdrawAmount').value = '';
+
+             goBack();
+        }
+
+        // --- EARN MORE ---
+        function copyReferralCode() {
+            const code = document.getElementById('referralCode').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const feedbackEl = document.getElementById('copyFeedback');
+                feedbackEl.textContent = 'Copied!';
+                setTimeout(() => {
+                    feedbackEl.textContent = '';
+                }, 2000);
+            });
+        }
+        
+        // --- PROFILE ---
+        function submitProfile() {
+            showMessage("Under review. We will let you know when it's verified.");
+            goBack();
+        }
+        
+        // --- UTILITIES ---
+        function showMessage(message) {
+            document.getElementById('messageText').textContent = message;
+            document.getElementById('messagePopup').classList.remove('hidden');
+        }
+
+        function closeMessagePopup() {
+            document.getElementById('messagePopup').classList.add('hidden');
+        }
+        
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+             // You can pre-populate users for testing if you want
+             state.users['testuser'] = { username: 'testuser', password: 'password', balance: 180000, referrals: 0 };
+        });
+
+    </script>
+</body>
+</html>
